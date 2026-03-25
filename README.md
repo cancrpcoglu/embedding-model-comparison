@@ -51,11 +51,11 @@ pip install fastapi uvicorn sentence-transformers faiss-cpu google-genai psutil 
 **3. ⚠️ ÇOK ÖNEMLİ: Kendi Gemini API Anahtarınızı Ekleyin!**
 Projenin Cloud ayağının çalışması için kendi Google API anahtarınıza ihtiyacınız var.
 
-main.py dosyasını açın.
+1. main.py dosyasını açın.
 
-Kodun üst kısımlarındaki client = genai.Client(api_key="...") satırını bulun.
+2. Kodun üst kısımlarındaki client = genai.Client(api_key="sizin_gemini_api_keyiniz") satırını bulun.
 
-Kendi ücretsiz API anahtarınızı (Google AI Studio'dan alabilirsiniz) buraya yapıştırın.
+3. Kendi ücretsiz API anahtarınızı (Google AI Studio'dan alabilirsiniz) buraya yapıştırın.
 
 **4. Sunucuyu başlatın:**
 ```bash
