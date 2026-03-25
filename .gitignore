@@ -1,0 +1,9 @@
+# Python önbellek dosyaları
+__pycache__/
+
+# Sanal ortam
+.venv/
+venv/
+
+# Vektör veritabanı dosyaları (Çok büyük oldukları için yüklenmez)
+*.index

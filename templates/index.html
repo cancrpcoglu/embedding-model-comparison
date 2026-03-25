@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Model Karşılaştırma - Text-to-SQL RAG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding-top: 30px; padding-bottom: 50px; }
+        .result-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px; display: none; }
+        pre { background: #2b2b2b; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .log-container { max-height: 250px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center mb-4">Embedding Modeli Performans Testi</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm mb-4">
+                <form id="searchForm">
+                    <div class="mb-3">
+                        <label for="modelSelect" class="form-label"><b>Test Edilecek Modeli Seçin:</b></label>
+                        <select class="form-select" id="modelSelect" required>
+                            <option value="sentence-transformers/paraphrase-multilingual-mpnet-base-v2" selected>Lokal 1: MPNet Base (Dengeli / Yüksek Başarı)</option>
+                            <option value="intfloat/multilingual-e5-small">Lokal 2: E5-Small (Hızlı)</option>
+                            <option value="sentence-transformers/distiluse-base-multilingual-cased-v2">Lokal 3: DistilUSE (Alternatif)</option>
+                            <option value="intfloat/multilingual-e5-base">Lokal 4: E5-Base (Optimum Performans)</option>
+                            <option value="intfloat/multilingual-e5-large">Referans: E5-Large (Zorunlu / Ağır)</option>
+                            <option value="gemini-embedding-001">Cloud: Gemini Embedding 001</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="queryInput" class="form-label"><b>Sorunuz (Örn: Bu yıl ne kadar satış yaptım?):</b></label>
+                        <input type="text" class="form-control" id="queryInput" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="searchBtn">Sorgula ve Karşılaştır</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">📊 Performans Kıyaslama Logları</h6>
+                </div>
+                <div class="card-body p-0 log-container">
+                    <table class="table table-sm table-striped table-hover mb-0" style="font-size: 0.85rem;">
+                        <thead class="table-light position-sticky top-0">
+                            <tr>
+                                <th>Model</th>
+                                <th>Hız (sn)</th>
+                                <th>Doğruluk</th>
+                                <th>Kaynak Tüketimi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-box" id="resultDiv">
+        <h4 class="text-success">En İyi Eşleşme Bulundu!</h4>
+        <p><b>Benzerlik Oranı:</b> <span id="score" class="badge bg-success fs-6"></span></p>
+        <p><b>Geçen Süre (Latency):</b> <span id="latency" class="badge bg-warning text-dark fs-6"></span> saniye</p>
+        <hr>
+        <h5>JSON Detayı:</h5>
+        <pre><code id="jsonDetail"></code></pre>
+    </div>
+</div>
+
+<script>
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('searchBtn');
+        const resultDiv = document.getElementById('resultDiv');
+        const modelSelect = document.getElementById('modelSelect');
+        
+        const modelName = modelSelect.options[modelSelect.selectedIndex].text.split(':')[0]; 
+        
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> İşleniyor...';
+        btn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('query', document.getElementById('queryInput').value);
+        formData.append('model_choice', modelSelect.value);
+
+        try {
+            const response = await fetch('/search', { method: 'POST', body: formData });
+            const data = await response.json();
+
+            document.getElementById('score').innerText = data.similarity_percentage;
+            document.getElementById('latency').innerText = data.latency_seconds;
+            document.getElementById('jsonDetail').innerText = JSON.stringify(data.matched_data, null, 4);
+            resultDiv.style.display = 'block';
+
+            const logRow = `
+                <tr>
+                    <td class="fw-bold">${modelName}</td>
+                    <td><span class="text-danger fw-bold">${data.latency_seconds}</span></td>
+                    <td><span class="badge bg-success">${data.similarity_percentage}</span></td>
+                    <td><span class="text-muted">${data.resource_usage}</span></td>
+                </tr>
+            `;
+            document.getElementById('logBody').insertAdjacentHTML('afterbegin', logRow);
+
+        } catch (error) {
+            alert("Bir hata oluştu. Lütfen terminal ekranını kontrol edin.");
+            console.error("Hata detayı:", error);
+        } finally {
+            btn.innerHTML = 'Sorgula ve Karşılaştır';
+            btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>
