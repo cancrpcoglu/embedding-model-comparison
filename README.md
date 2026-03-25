@@ -42,6 +42,26 @@ Projeyi kendi bilgisayarınızda denemek çok basit. Sadece Google Gemini API an
 ```bash
 git clone https://github.com/KULLANICI_ADIN/embedding-model-comparison.git
 cd embedding-model-comparison
+```
 
 **2. Gerekli kütüphaneleri kurun:**
 ```bash
+pip install fastapi uvicorn sentence-transformers faiss-cpu google-genai psutil numpy jinja2 python-multipart
+```
+**3. ⚠️ ÇOK ÖNEMLİ: Kendi Gemini API Anahtarınızı Ekleyin!**
+Projenin Cloud ayağının çalışması için kendi Google API anahtarınıza ihtiyacınız var.
+
+main.py dosyasını açın.
+
+Kodun üst kısımlarındaki client = genai.Client(api_key="...") satırını bulun.
+
+Kendi ücretsiz API anahtarınızı (Google AI Studio'dan alabilirsiniz) buraya yapıştırın.
+
+**4. Sunucuyu başlatın:**
+```bash
+uvicorn main:app --reload
+```
+Tarayıcınızdan http://127.0.0.1:8000 adresine giderek testlere başlayabilirsiniz. (Not: Seçtiğiniz ilk lokal model, ilk çalışmada vektörleri diske yazacağı için 1-2 dakika sürebilir, sonrasında milisaniyeler içinde akacaktır).
+
+
+
