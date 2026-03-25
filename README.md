@@ -40,5 +40,8 @@ Projeyi kendi bilgisayarınızda denemek çok basit. Sadece Google Gemini API an
 
 **1. Repoyu klonlayın ve klasöre girin:**
 ```bash
-git clone https://github.com/KULLANICI_ADIN/embedding_models.git
-cd embedding_models
+git clone https://github.com/KULLANICI_ADIN/embedding-model-comparison.git
+cd embedding-model-comparison
+
+**2. Gerekli kütüphaneleri kurun:**
+```bash
